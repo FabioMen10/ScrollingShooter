@@ -1,26 +1,5 @@
 debug = true
 
--- Player Object
-player = { x = 200, y = 710, speed = 200, img = nil}
-isAlive = true
-score = 0
-
--- Timers
--- We declare these here so we don't have to edit them multiple places
-canShoot = true
-canShootTimerMax = 0.4
-canShootTimer = canShootTimerMax
-createEnemyTimerMax = 1.4
-createEnemyTimer = createEnemyTimerMax
-
--- Image Storage
-bulletImg = nil
-enemyImg = nil
-
--- Entity Storage
-bullets = {} -- array of current bullets being drawn and updated
-enemies = {} -- array of current enemies on screen
-
 -- Collision detection taken function from http://love2d.org/wiki/BoundingBox.lua
 -- Returns true if two boxes overlap, false if they don't
 -- x1,y1 are the left-top coords of the first box, while w1,h1 are its width and height
@@ -34,9 +13,29 @@ end
 
 -- Loading
 function love.load()
-  player.img = love.graphics.newImage("assets/plane.png")
-  bulletImg = love.graphics.newImage("assets/bullet.png")
-  enemyImg = love.graphics.newImage("assets/enemy.png")
+  Object = require "classic"
+  require "player"
+  require "enemy"
+  require "bullet"
+
+  player = Player()
+
+  -- Entity Storage
+  bullets = {} -- array of current bullets being drawn and updated
+  enemies = {} -- array of current enemies on screen
+
+  -- State of the game
+  isAlive = true
+  score = 0
+
+  -- Timers
+  -- We declare these here so we don't have to edit them multiple places
+  canShoot = true
+  canShootTimerMax = 0.4
+  canShootTimer = canShootTimerMax
+  createEnemyTimerMax = 0.8
+  createEnemyTimer = createEnemyTimerMax
+
   gunSound = love.audio.newSource("assets/gun-sound.wav", "static")
 end
 
@@ -59,14 +58,13 @@ function love.update(dt)
     createEnemyTimer = createEnemyTimerMax
 
     -- Create an enemy
-    randomNumber = math.random(10, love.graphics.getWidth() - enemyImg:getWidth())
-    newEnemy = { x = randomNumber, y = -10, img = enemyImg }
+    newEnemy = Enemy()
     table.insert(enemies, newEnemy)
   end
 
   -- update the positions of bullets
   for i, bullet in ipairs(bullets) do
-    bullet.y = bullet.y - (300 * dt)
+    bullet:move(dt)
 
     if bullet.y < 0 then -- remove bullets when they pass off the screen
       table.remove(bullets, i)
@@ -75,9 +73,9 @@ function love.update(dt)
 
   -- update the positions of enemies
   for i, enemy in ipairs(enemies) do
-    enemy.y = enemy.y + (200 * dt)
+    enemy:move(dt)
 
-    if enemy.y > 850 then -- remove enemies when they pass off the screen
+    if enemy.y > love.graphics:getHeight() then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
     end
   end
@@ -102,68 +100,41 @@ function love.update(dt)
   end
 
   if love.keyboard.isDown('space', 'rctrl', 'lctrl') and canShoot and isAlive then
-    -- Create some bullets
-    newBullet = { x = player.x + (player.img:getWidth() / 2), y = player.y, img = bulletImg }
-    table.insert(bullets, newBullet)
-    canShoot = false
-    canShootTimer = canShootTimerMax
-    gunSound:play()
+    player:shoot()
   end
 
   -- Horizontal movement
   if love.keyboard.isDown('left', 'a') then
-    if player.x > 0 then -- binds us to the map
-      player.x = player.x - (player.speed * dt)
-    end
+    player:moveLeft(dt)
   elseif love.keyboard.isDown('right', 'd') then
-    if player.x < (love.graphics.getWidth() - player.img:getWidth()) then
-      player.x = player.x + (player.speed * dt)
-    end
+    player:moveRight(dt)
   end
 
   -- Vertical movement
   if love.keyboard.isDown('up', 'w') then
-    if player.y > 0 then
-      player.y = player.y - (player.speed * dt)
-    end
+    player:moveUp(dt)
   elseif love.keyboard.isDown('down', 's') then
-    if player.y < (love.graphics.getHeight() - player.img:getHeight()) then
-      player.y = player.y + (player.speed * 0.5 * dt)
-    end
+    player:moveDown(dt)
   end
 
   -- Restart game
   if not isAlive and love.keyboard.isDown('r') then
-    -- remove all our bullets and enemies from screen
-    bullets = {}
-    enemies = {}
-
-    -- reset timers
-    canShootTimer = canShootTimerMax
-    createEnemyTimer = createEnemyTimerMax
-
-    -- move player back to default position
-    player.x = 200
-    player.y = 710
-
-    -- reset our game state
-    score = 0
-    isAlive = true
+    love.load()
   end
 end
 
 -- Drawing
 function love.draw()
   for i, bullet in ipairs(bullets) do
-    love.graphics.draw(bullet.img, bullet.x, bullet.y)
+    bullet:draw()
   end
 
   for i, enemy in ipairs(enemies) do
-    love.graphics.draw(enemy.img, enemy.x, enemy.y)
+    enemy:draw()
   end
 
   if isAlive then
-    love.graphics.draw(player.img, player.x, player.y)
+    player:draw()
   else
     love.graphics.print("Press 'R' to restart", love.graphics:getWidth() / 2 - 50, love.graphics:getHeight() / 2 - 10)
   end
