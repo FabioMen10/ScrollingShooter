@@ -8,7 +8,7 @@ score = 0
 -- Timers
 -- We declare these here so we don't have to edit them multiple places
 canShoot = true
-canShootTimerMax = 0.2
+canShootTimerMax = 0.4
 canShootTimer = canShootTimerMax
 createEnemyTimerMax = 1.4
 createEnemyTimer = createEnemyTimerMax
