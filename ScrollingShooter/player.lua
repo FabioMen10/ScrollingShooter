@@ -1,10 +1,10 @@
 Player = Object:extend()
 
 function Player:new()
-  self.x = 200
-  self.y = 710
-  self.speed = 200
   self.img = love.graphics.newImage("assets/plane.png")
+  self.x = love.graphics:getWidth()/2 - self.img:getWidth()/2
+  self.y = love.graphics:getHeight() - self.img:getHeight()
+  self.speed = 200
 end
 
 function Player:moveRight(dt)

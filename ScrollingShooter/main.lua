@@ -145,7 +145,7 @@ function love.draw()
 
   -- Show the score
   love.graphics.setColor(0, 255, 0)
-  love.graphics.print("Score: " .. score, 400, 10)
+  love.graphics.print("Score: " .. score, love.graphics:getWidth() - 80, 10)
   love.graphics.setColor(255, 255, 255)
 
   -- Display FPS
