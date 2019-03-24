@@ -128,7 +128,7 @@ function love.update(dt)
     end
   elseif love.keyboard.isDown('down', 's') then
     if player.y < (love.graphics.getHeight() - player.img:getHeight()) then
-      player.y = player.y + (player.speed * dt)
+      player.y = player.y + (player.speed * 0.5 * dt)
     end
   end
 
