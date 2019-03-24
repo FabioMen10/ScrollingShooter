@@ -1,5 +1,7 @@
 debug = true
 
+createEnemyTimerMax = 0.8
+
 -- Collision detection taken function from http://love2d.org/wiki/BoundingBox.lua
 -- Returns true if two boxes overlap, false if they don't
 -- x1,y1 are the left-top coords of the first box, while w1,h1 are its width and height
@@ -33,10 +35,10 @@ function love.load()
   canShoot = true
   canShootTimerMax = 0.4
   canShootTimer = canShootTimerMax
-  createEnemyTimerMax = 0.8
   createEnemyTimer = createEnemyTimerMax
 
   gunSound = love.audio.newSource("assets/gun-sound.wav", "static")
+  explosionSound = love.audio.newSource("assets/explosion.wav", "static")
 end
 
 -- Updating
@@ -89,6 +91,7 @@ function love.update(dt)
         table.remove(bullets, j)
         table.remove(enemies, i)
         score = score + 1
+        explosionSound:play()
       end
     end
 
@@ -119,6 +122,7 @@ function love.update(dt)
 
   -- Restart game
   if not isAlive and love.keyboard.isDown('r') then
+    createEnemyTimerMax = createEnemyTimerMax - createEnemyTimerMax/2
     love.load()
   end
 end
