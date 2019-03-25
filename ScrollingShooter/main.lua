@@ -35,7 +35,12 @@ function love.load()
   canShoot = true
   canShootTimerMax = 0.4
   canShootTimer = canShootTimerMax
-  createEnemyTimer = createEnemyTimerMax
+
+  if(createEnemyTimerMax >= 0.05) then
+    createEnemyTimer = createEnemyTimerMax
+  else
+    createEnemyTimer = 0.05
+  end
 
   gunSound = love.audio.newSource("assets/gun-sound.wav", "static")
   explosionSound = love.audio.newSource("assets/explosion.wav", "static")
@@ -79,6 +84,7 @@ function love.update(dt)
 
     if enemy.y > love.graphics:getHeight() then -- remove enemies when they pass off the screen
       table.remove(enemies, i)
+      createEnemyTimerMax = createEnemyTimerMax - createEnemyTimerMax / 2
     end
   end
 
@@ -122,7 +128,6 @@ function love.update(dt)
 
   -- Restart game
   if not isAlive and love.keyboard.isDown('r') then
-    createEnemyTimerMax = createEnemyTimerMax - createEnemyTimerMax/2
     love.load()
   end
 end
